@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI Elements Recreation</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #fff; }
+  body {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    color: #444;
+  }
+
+  .canvas {
+    position: relative;
+    width: 2048px;
+    height: 1106px;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  /* Typography */
+  .type {
+    position: absolute;
+    left: 160px;
+    top: 150px;
+    width: 350px;
+  }
+  .type-row { margin-bottom: 27px; white-space: nowrap; }
+  .type-row:last-child { margin-bottom: 0; }
+  .t40 { font-size: 40px; font-weight: 700; color: #4b4b4b; }
+  .t30 { font-size: 30px; font-weight: 700; color: #4b4b4b; }
+  .t20 { font-size: 20px; color: #4b4b4b; }
+  .t18 { font-size: 18px; color: #4b4b4b; }
+  .t16 { font-size: 16px; color: #4b4b4b; }
+  .t14 { font-size: 14px; color: #4b4b4b; }
+
+  /* Input states */
+  .inputs {
+    position: absolute;
+    left: 505px;
+    top: 150px;
+    display: flex;
+    gap: 38px;
+  }
+  .input-column { width: 250px; }
+  .state-label {
+    position: absolute;
+    left: -98px;
+    width: 85px;
+    text-align: right;
+    font-size: 11px;
+    color: #777;
+  }
+  .input-state {
+    position: relative;
+    height: 48px;
+    margin-bottom: 24px;
+  }
+  .state-label.normal { top: 8px; }
+  .state-label.focused { top: 80px; }
+  .state-label.typing { top: 152px; }
+  .state-label.filled { top: 224px; }
+  .state-label.error { top: 296px; }
+
+  .field {
+    width: 250px;
+    height: 38px;
+    border: 1px solid #cfcfcf;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    color: #c6c6c6;
+    font-size: 11px;
+    font-weight: 600;
+    position: relative;
+  }
+  .field.focused, .field.typing {
+    border: 2px solid #514cff;
+    padding-left: 11px;
+  }
+  .field.filled { border-color: #7b78ff; color: #3f3f3f; }
+  .field.error { border: 2px solid #ff3e42; color: #3e3e3e; padding-left: 11px; }
+  .field .placeholder { color: #c7c7c7; }
+  .field .mail { margin-left: auto; width: 15px; height: 12px; border: 1.4px solid #999; border-radius: 2px; position: relative; }
+  .field .mail:after {
+    content:""; position:absolute; left:2px; right:2px; top:2px; height:6px;
+    border-bottom:1px solid #999; transform:skewY(-30deg);
+  }
+
+  .card-field {
+    width: 240px;
+    height: 38px;
+    border: 1px solid #cfcfcf;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    color: #c7c7c7;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .card-field.focused, .card-field.typing {
+    border: 2px solid #514cff;
+    padding-left: 9px;
+  }
+  .card-field.filled { border-color: #7b78ff; color: #333; }
+  .card-field.error { border: 2px solid #ff3e42; color: #333; padding-left: 9px; }
+  .brands { margin-left: auto; display: flex; gap: 4px; align-items: center; }
+  .brand {
+    width: 18px; height: 12px; border: 1px solid #ddd; border-radius: 1px;
+    font-size: 5px; display: grid; place-items: center; font-weight: 800; color:#333;
+    background: #fff;
+  }
+  .visa { color:#1a237e; }
+  .mc { color:#111; position:relative; }
+  .mc:before,.mc:after { content:""; position:absolute; width:6px;height:6px;border-radius:50%;top:2px; }
+  .mc:before{left:4px;background:#e52b2b}.mc:after{left:8px;background:#f3a400;opacity:.9}
+  .amex { background:#39a9c9; color:#fff; }
+
+  /* Progress */
+  .progress {
+    position: absolute;
+    left: 1245px;
+    top: 151px;
+    width: 240px;
+  }
+  .progress-item { margin-bottom: 30px; }
+  .bars { display:flex; gap:4px; height:4px; }
+  .bar { height:4px; background:#e8e8e8; flex:1; }
+  .bar.active { background:#7c78ff; }
+  .progress-text { margin-top: 6px; font-size: 10px; color:#777; }
+
+  /* Colors */
+  .colors {
+    position:absolute;
+    left:145px;
+    top:480px;
+    width:330px;
+  }
+  .color-row { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .swatch { border-radius:50%; }
+  .s1 { width:66px;height:66px;background:#333; }
+  .s2 { width:66px;height:66px;background:#505050; }
+  .s3 { width:66px;height:66px;background:#bcbcbc; }
+  .s4 { width:66px;height:66px;background:#5a59e8; }
+  .s5 { width:66px;height:66px;background:#8988f7; }
+  .large1 { width:112px;height:112px;background:linear-gradient(135deg,#7778e8,#7779e8); }
+  .large2 { width:112px;height:112px;background:#42c465; }
+
+  /* Checkboxes */
+  .checks {
+    position:absolute;
+    left:720px;
+    top:532px;
+    width:180px;
+  }
+  .check-row { display:flex; align-items:center; gap:110px; margin-bottom:17px; }
+  .check-row span { font-size:10px; color:#777; white-space:nowrap; }
+  .checkbox {
+    width:14px;height:14px;border:1px solid #aaa;border-radius:3px;
+    display:grid;place-items:center;background:#fff;
+  }
+  .checkbox.checked { background:#555; border-color:#555; color:#fff; }
+  .checkbox.checked:after { content:"✓"; font-size:10px; line-height:1; }
+  .checkbox.hover { border-color:#7a77ff; box-shadow:0 0 0 1px #7a77ff; }
+
+  /* Plan cards */
+  .plans {
+    position:absolute;
+    left:820px;
+    top:514px;
+    display:flex;
+    gap:18px;
+  }
+  .plan {
+    width:113px;
+    height:171px;
+    border:1px solid #888;
+    border-radius:9px;
+    padding:14px 12px;
+    position:relative;
+    background:#fff;
+  }
+  .plan.selected { border:2px solid #3cc48a; box-shadow:0 0 9px rgba(0,0,0,.12); padding:13px 11px; }
+  .plan.disabled { border-color:#ddd; color:#c5c5c5; }
+  .radio {
+    width:23px;height:23px;border:1px solid #999;border-radius:50%; margin-bottom:8px;
+  }
+  .selected .radio { background:#4acb9a; border-color:#4acb9a; position:relative; }
+  .selected .radio:after { content:"✓"; color:#fff; font-size:14px; position:absolute; left:4px; top:1px; }
+  .plan-title { font-size:17px; font-weight:700; margin-bottom:4px; }
+  .old-price { font-size:13px; color:#aaa; text-decoration:line-through; }
+  .price { font-size:17px; font-weight:700; margin:0 0 5px; }
+  .plan-copy { font-size:9px; line-height:1.35; color:#555; }
+  .disabled .plan-copy,.disabled .old-price,.disabled .price { color:#c6c6c6; }
+
+  /* App buttons */
+  .apps {
+    position:absolute;
+    left:1608px;
+    top:149px;
+    width:285px;
+    height:220px;
+    border-radius:13px;
+    background:#5959e7;
+    padding:38px 32px;
+  }
+  .app-btn {
+    width:221px;
+    height:55px;
+    border-radius:13px;
+    border:2px solid #fff;
+    background:linear-gradient(#ffe45e,#ffc500);
+    box-shadow:0 0 11px rgba(255,255,255,.7), inset 0 1px 1px rgba(255,255,255,.6);
+    margin-bottom:31px;
+    display:flex; align-items:center; justify-content:center; gap:9px;
+    font-size:17px; font-weight:700; color:#333;
+  }
+  .apple {
+    width:19px;height:19px;background:#111;border-radius:50% 50% 45% 45%;position:relative;
+  }
+  .apple:before { content:""; position:absolute; width:7px;height:4px; background:#111; top:-3px; left:9px; transform:rotate(-35deg); border-radius:5px; }
+  .play { width:0;height:0;border-top:10px solid transparent;border-bottom:10px solid transparent;border-left:17px solid #18aee0; filter:drop-shadow(-4px 0 0 #2bd16b); }
+
+  /* CTA buttons */
+  .ctas {
+    position:absolute;
+    left:1380px;
+    top:457px;
+    width:513px;
+    display:grid;
+    grid-template-columns:245px 245px;
+    column-gap:32px;
+    row-gap:40px;
+  }
+  .cta-wrap { position:relative; }
+  .cta {
+    height:42px;
+    width:245px;
+    border:0;
+    border-radius:9px;
+    color:#fff;
+    font-size:13px;
+    font-weight:700;
+  }
+  .green { background:linear-gradient(90deg,#52d878,#35b85b); }
+  .purple { background:linear-gradient(90deg,#9693ef,#5b58df); }
+  .disabled-btn { background:#bdbdbd; color:#fff; }
+  .retry { color:#ff4d4d; font-size:11px; text-align:center; margin-top:10px; }
+  .shine { position:absolute; inset:0; overflow:hidden; border-radius:9px; pointer-events:none; }
+  .shine:before {
+    content:""; position:absolute; width:50px;height:50px;left:-9px;bottom:-21px;
+    border-radius:50%; background:rgba(255,255,255,.2);
+  }
+
+  /* Google Pay */
+  .gpay {
+    position:absolute;
+    left:1380px;
+    top:720px;
+    display:flex;
+    gap:13px;
+  }
+  .gpay-btn {
+    width:78px;height:36px;border:2px solid #666;border-radius:6px;
+    background:#fff;font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center;gap:3px;
+  }
+  .g { color:#4285f4; font-weight:900; font-size:14px; }
+  .gpay-btn:nth-child(2){ box-shadow:0 1px 2px rgba(0,0,0,.15); }
+
+  /* Coupon states */
+  .coupons {
+    position:absolute;
+    left:280px;
+    top:850px;
+    width:1620px;
+    display:flex;
+    align-items:flex-start;
+    gap:35px;
+  }
+  .coupon { width:240px; }
+  .coupon-head { text-align:center; font-size:11px; font-weight:700; color:#555; margin-bottom:22px; height:13px; }
+  .coupon-head.muted { color:#bbb; }
+  .coupon-head.purple-text { color:#5b58e7; }
+  .coupon-head.green-text { color:#555; }
+  .coupon-input {
+    height:38px; border:2px solid #5754f3; border-radius:6px; display:flex;align-items:center;
+    padding:0 12px;font-size:11px;font-weight:700;color:#555;
+  }
+  .coupon.valid .coupon-input { border-color:#28b867; }
+  .coupon.invalid .coupon-input { border-color:#ff454b; }
+  .coupon-input .icon { margin-left:auto; width:17px;height:17px;border:2px solid #28b867;border-radius:50%; color:#28b867;display:grid;place-items:center;font-size:12px; }
+  .coupon.invalid .icon { border-color:#ff454b;color:#ff454b; }
+  .coupon-note { text-align:center; font-size:10px; margin-top:10px; color:#555; }
+  .badge {
+    display:block; width:max-content; margin:-1px auto 0; padding:4px 9px;
+    background:#28b867;color:#fff;font-size:9px;border-radius:0 0 4px 4px;
+  }
+  .badge.red { background:#ff5555; }
+
+  /* Minor positioning refinements */
+  .labels { position:absolute; left:505px; top:154px; font-size:10px;color:#777; }
+  .labels div { height:72px; }
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <section class="type">
+    <div class="type-row t40">Large text 40px</div>
+    <div class="type-row t30">Medium text 30px</div>
+    <div class="type-row t20">Large p text 20px</div>
+    <div class="type-row t18">Medium p text 18px</div>
+    <div class="type-row t16">Small p text 16px</div>
+    <div class="type-row t14">Tiny p text 14px</div>
+  </section>
+
+  <section class="inputs">
+    <div class="input-column">
+      <div class="input-state"><span class="state-label normal">Normal</span>
+        <div class="field"><span class="placeholder">Your Email</span><span class="mail"></span></div>
+      </div>
+      <div class="input-state"><span class="state-label focused">Focused</span>
+        <div class="field focused"><span class="placeholder">Your Email</span><span class="mail"></span></div>
+      </div>
+      <div class="input-state"><span class="state-label typing">Typing</span>
+        <div class="field typing">mail@gm<span class="mail"></span></div>
+      </div>
+      <div class="input-state"><span class="state-label filled">Filled</span>
+        <div class="field filled">mail@gmail.com<span class="mail"></span></div>
+      </div>
+      <div class="input-state"><span class="state-label error">Error</span>
+        <div class="field error">mail@gmail.com<span class="mail"></span></div>
+      </div>
+    </div>
+
+    <div class="input-column">
+      <div class="input-state"><div class="card-field"><span>1234 1234 1234 1234</span><span class="brands"><i class="brand visa">VISA</i><i class="brand mc"></i><i class="brand amex">AM</i></span></div></div>
+      <div class="input-state"><div class="card-field focused"><span>1234 1234 1234 1234</span><span class="brands"><i class="brand visa">VISA</i><i class="brand mc"></i><i class="brand amex">AM</i></span></div></div>
+      <div class="input-state"><div class="card-field typing"><span>5463 756</span><span class="brands"><i class="brand visa">VISA</i><i class="brand mc"></i><i class="brand amex">AM</i></span></div></div>
+      <div class="input-state"><div class="card-field filled"><span>5463 7566 7564 7895</span><span class="brands"><i class="brand visa">VISA</i><i class="brand mc"></i><i class="brand amex">AM</i></span></div></div>
+      <div class="input-state"><div class="card-field error"><span>5463 7566 7564 789</span><span class="brands"><i class="brand visa">VISA</i><i class="brand mc"></i><i class="brand amex">AM</i></span></div></div>
+    </div>
+  </section>
+
+  <section class="progress">
+    <div class="progress-item">
+      <div class="bars"><i class="bar active"></i><i class="bar"></i><i class="bar"></i></div>
+      <div class="progress-text">1/3 Sign up</div>
+    </div>
+    <div class="progress-item">
+      <div class="bars"><i class="bar active"></i><i class="bar active"></i><i class="bar"></i></div>
+      <div class="progress-text">2/3 Choose plan</div>
+    </div>
+    <div class="progress-item">
+      <div class="bars"><i class="bar active"></i><i class="bar active"></i><i class="bar active"></i></div>
+      <div class="progress-text">3/3 Purchase info</div>
+    </div>
+  </section>
+
+  <section class="apps">
+    <div class="app-btn"><span class="apple"></span>Open your App&nbsp;›</div>
+    <div class="app-btn"><span class="play"></span>Open your App&nbsp;›</div>
+  </section>
+
+  <section class="colors">
+    <div class="color-row"><i class="swatch s1"></i><i class="swatch s2"></i><i class="swatch s3"></i></div>
+    <div class="color-row"><i class="swatch s4"></i><i class="swatch s5"></i></div>
+    <div class="color-row"><i class="swatch large1"></i><i class="swatch large2"></i></div>
+  </section>
+
+  <section class="checks">
+    <div class="check-row"><span>Normal</span><i class="checkbox checked"></i></div>
+    <div class="check-row"><span>Normal / Hover</span><i class="checkbox checked"></i></div>
+    <div class="check-row"><span>Empty</span><i class="checkbox"></i></div>
+    <div class="check-row"><span>Empty / Hover</span><i class="checkbox hover"></i></div>
+  </section>
+
+  <section class="plans">
+    <div class="plan selected">
+      <div class="radio"></div>
+      <div class="plan-title">Yearly</div>
+      <div class="old-price">$7.99</div>
+      <div class="price">$5.99 /mo</div>
+      <div class="plan-copy">Billed annually<br>at $47.90 + tax</div>
+    </div>
+    <div class="plan">
+      <div class="radio"></div>
+      <div class="plan-title">Monthly</div>
+      <div class="price">$7.99 /mo</div>
+      <div class="plan-copy">Billed monthly<br>at $7.99 + tax</div>
+    </div>
+    <div class="plan disabled">
+      <div class="radio"></div>
+      <div class="plan-title">Monthly</div>
+      <div class="price">$7.99 /mo</div>
+      <div class="plan-copy">Billed monthly<br>at $7.99 + tax</div>
+    </div>
+  </section>
+
+  <section class="ctas">
+    <div class="cta-wrap"><button class="cta green">Start Trial!</button></div>
+    <div class="cta-wrap"><button class="cta purple">Continue</button></div>
+    <div class="cta-wrap"><button class="cta green"><span class="shine"></span>Start Trial!</button></div>
+    <div class="cta-wrap"><button class="cta purple"><span class="shine"></span>Continue</button></div>
+    <div class="cta-wrap"><button class="cta disabled-btn">Start Trial!</button><div class="retry">Try again, something went wrong</div></div>
+    <div class="cta-wrap"><button class="cta disabled-btn">Continue</button><div class="retry">Try again, something went wrong</div></div>
+  </section>
+
+  <section class="gpay">
+    <button class="gpay-btn"><span class="g">G</span> Pay</button>
+    <button class="gpay-btn"><span class="g">G</span> Pay</button>
+  </section>
+
+  <section class="coupons">
+    <div class="coupon">
+      <div class="coupon-head muted">Have a coupon code?⌄</div>
+    </div>
+    <div class="coupon">
+      <div class="coupon-head purple-text">Have a coupon code?⌄</div>
+    </div>
+    <div class="coupon">
+      <div class="coupon-head">Have a coupon code!⌃</div>
+      <div class="coupon-input"><span>Enter code here</span><span style="margin-left:auto;color:#aaa;">▧</span></div>
+      <div class="coupon-note">*Discount coupons void free trials</div>
+    </div>
+    <div class="coupon valid">
+      <div class="coupon-head">Have a coupon code!⌃</div>
+      <div class="coupon-input"><span>78BCD1998</span><span class="icon">✓</span></div>
+      <div class="coupon-note">*Discount coupons void free trials</div>
+    </div>
+    <div class="coupon valid">
+      <div class="coupon-head">Have a coupon code!⌃</div>
+      <div class="coupon-input"><span>78BCD1998</span></div>
+      <span class="badge">Cool, we got you covered</span>
+      <div class="coupon-note">*Discount coupons void free trials</div>
+    </div>
+    <div class="coupon invalid">
+      <div class="coupon-head">Have a coupon code!⌃</div>
+      <div class="coupon-input"><span>78BCD1998</span><span class="icon">×</span></div>
+      <span class="badge red">Invalid code</span>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
